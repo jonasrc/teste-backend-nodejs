@@ -1,7 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-
-import { Genre } from './Genre';
+import {Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn} from 'typeorm';
 import { ApiModel, ApiModelProperty } from 'swagger-express-ts';
+import { MovieVote } from "~/entities/MovieVote";
+import { Genre } from './Genre';
 
 @Entity()
 @ApiModel({
@@ -36,10 +36,14 @@ export class Movie {
   })
   genre: Genre;
 
-  constructor(title: string, description: string, director: string, genre: Genre) {
+  @OneToMany(() => MovieVote, movieVote => movieVote.movie)
+  votes: MovieVote[] = [];
+
+  constructor(title: string, description: string, director: string, genre: Genre, votes: MovieVote[]) {
     this.title = title;
     this.description = description;
     this.director = director;
     this.genre = genre;
+    this.votes = votes;
   }
 }

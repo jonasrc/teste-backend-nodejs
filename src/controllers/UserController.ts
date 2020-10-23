@@ -105,10 +105,12 @@ export class UserController {
       const { username, password, role } = req.body;
       if (!(username && password && role)) {
         res.status(StatusCodes.BAD_REQUEST).send('Invalid parameters passed to request.');
+        return;
       }
 
       if(!verify(role)) {
         res.status(StatusCodes.BAD_REQUEST).send('Invalid role.');
+        return;
       }
 
       const user = new User(username, password, role);
@@ -170,7 +172,6 @@ export class UserController {
       }
 
       await userRepository.save(user);
-
       res.status(StatusCodes.NO_CONTENT).send();
     } catch (err) {
       Logger.error(`Error in updating the user. ${err.message}`, err.trace, 'UserController');
@@ -209,7 +210,6 @@ export class UserController {
       }
 
       await userRepository.softDelete(id);
-
       res.status(StatusCodes.NO_CONTENT).send();
     } catch (err) {
       Logger.error(`Error in deleting the user. ${err.message}`, err.trace, 'UserController');
@@ -251,7 +251,7 @@ export class UserController {
       }
 
       const token = jwt.sign(
-          {sub: user.id, role: user.username},
+          {sub: user.id, role: user.role},
           <string>process.env.JWT_SECRET,
           {expiresIn: 300}
       );

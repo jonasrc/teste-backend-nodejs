@@ -20,8 +20,9 @@ routes.delete('/users/:id([0-9]+)', verifyToken, userController.delete);
 const movieController = new MovieController();
 routes.get('/movies', movieController.get);
 routes.get('/movies/:id([0-9]+)', movieController.getById);
-routes.post('/movies', movieController.create);
-routes.delete('/movies/:id([0-9]+)', movieController.delete);
+routes.post('/movies/:id([0-9]+)/votes', verifyToken, movieController.vote);
+routes.post('/movies', verifyToken, movieController.create);
+routes.delete('/movies/:id([0-9]+)', verifyToken, movieController.delete);
 
 // Swagger
 const host = process.env.HOST || 'http://localhost';

@@ -3,13 +3,14 @@ import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
-  Entity,
+  Entity, OneToMany,
   PrimaryGeneratedColumn,
   Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
 import { ApiModel, ApiModelProperty } from 'swagger-express-ts';
+import {MovieVote} from "~/entities/MovieVote";
 
 @Entity()
 @ApiModel({
