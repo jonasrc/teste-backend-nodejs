@@ -46,4 +46,16 @@ export class Movie {
     this.genre = genre;
     this.votes = votes;
   }
+
+  calculateAverageRating(): string {
+    let ratingSum: number = -1;
+    let counter = 0;
+
+    this.votes.forEach(vote => {
+      counter++;
+      ratingSum = ratingSum === -1 ? vote.value : ratingSum + vote.value;
+    });
+
+    return (ratingSum === -1 ? 'No votes on this movie yet!' : (ratingSum/counter).toString());
+  }
 }

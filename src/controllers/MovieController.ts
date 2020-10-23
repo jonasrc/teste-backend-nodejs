@@ -55,13 +55,8 @@ export class MovieController {
       relations: ["votes"]
     });
 
-    let moviesWithAverage = movies.map((movie) => {
-      let averageRating: number = -1;
-      movie.votes.forEach(vote => {
-        averageRating = averageRating === -1 ? vote.value : averageRating + vote.value;
-      });
-
-      const strAverageRating: string = averageRating === -1 ? 'No votes on this movie yet!' : averageRating.toString();
+    let moviesWithAverage = movies.map(movie => {
+      const strAverageRating: string = movie.calculateAverageRating();
       const {votes: votes, ...movieWithoutVotes} = movie;
       return {movie: movieWithoutVotes, averageRating: strAverageRating};
     });
@@ -99,15 +94,21 @@ export class MovieController {
 
       const movie = await movieRepository.findOne(id, {
         select: ['id', 'title', 'description', 'director', 'genre'],
+        relations: ['votes']
       });
+
       if (!movie) {
-        res.status(StatusCodes.NOT_FOUND).send(`Movie not found`);
+        res.status(StatusCodes.NOT_FOUND).send(`Movie not found.`);
         return;
       }
 
-      res.send(movie);
+      const strAverageRating: string = movie.calculateAverageRating();
+      const {votes: votes, ...movieWithoutVotes} = movie;
+      const movieWithAverage = {movie: movieWithoutVotes, averageRating: strAverageRating};
+
+      res.send(movieWithAverage);
     } catch (err) {
-      Logger.error(`Error in finding the movie. ${err.message}`, err.trace, 'MovieController');
+      Logger.error(`Error while searching for movie. ${err.message}`, err.trace, 'MovieController');
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send();
     }
   }
