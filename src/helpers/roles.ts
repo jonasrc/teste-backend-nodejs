@@ -1,6 +1,6 @@
 export const ROLES = {
-    ROLE_ADMIN: 'Admin',
-    ROLE_USER: 'User'
+    ROLE_ADMIN: 'admin',
+    ROLE_USER: 'user'
 };
 
 export function verify(role: string) {

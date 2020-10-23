@@ -11,8 +11,17 @@ declare global {
 }
 
 export async function verifyToken(req: Request, res: Response, next: NextFunction) {
-    let accessToken = req.header('x-access-token');
+    let accessToken = req.header('x-access-token') || req.header('authorization');
 
+    if(!accessToken) {
+        return res.status(403).send('No access token provided.');
+    }
+
+    if (accessToken.startsWith('Bearer ')) {
+        // Remove Bearer from string
+        accessToken = accessToken.slice(7, accessToken.length);
+    }
+    
     if (!accessToken){
         return res.status(403).send('No access token provided.');
     }

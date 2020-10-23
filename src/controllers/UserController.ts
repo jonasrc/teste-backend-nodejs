@@ -5,6 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import { validate } from 'class-validator';
 import { Logger } from '~/shared-kernel/Logger';
 import * as jwt from 'jsonwebtoken';
+import * as bcrypt from 'bcrypt'
 import { verify } from "~/helpers/roles";
 import {
   ApiOperationDelete,
@@ -113,7 +114,8 @@ export class UserController {
         return;
       }
 
-      const user = new User(username, password, role);
+      const hashedPassword = bcrypt.hashSync(password, 10);
+      const user = new User(username, hashedPassword, role);
       const errors = await validate(user);
       if (errors.length > 0) {
         res.status(StatusCodes.UNPROCESSABLE_ENTITY).send(errors);
@@ -241,22 +243,25 @@ export class UserController {
       }
 
       const user = await userRepository.findOne({
-        where: { username: username, password: password },
+        where: { username: username },
         select: ["id", "username", "password"]
       });
 
       if (!user) {
-        res.status(StatusCodes.NOT_FOUND).send(`Invalid username or password.`);
+        res.status(StatusCodes.NOT_FOUND).send({auth: false, message: 'Invalid username or password.'});
         return;
       }
 
-      const token = jwt.sign(
-          {sub: user.id, role: user.role},
-          <string>process.env.JWT_SECRET,
-          {expiresIn: 300}
-      );
+      if(bcrypt.compareSync(password, user.password)) {
+        const token = jwt.sign(
+            {sub: user.id, role: user.role},
+            <string>process.env.JWT_SECRET,
+            {expiresIn: 300}
+        );
+        res.send({auth: true, token: token});
+      }
 
-      res.send({auth: true, token: token});
+      res.send({auth: false, message: 'Invalid username or password.'});
     } catch (err) {
       Logger.error(`Error while authenticating user. ${err.message}`, err.trace, 'UserController');
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send();

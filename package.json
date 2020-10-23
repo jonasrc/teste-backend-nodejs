@@ -31,6 +31,8 @@
     "Express"
   ],
   "dependencies": {
+    "@types/bcrypt": "^3.0.0",
+    "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "class-validator": "^0.12.2",
     "cli-color": "^2.0.0",
